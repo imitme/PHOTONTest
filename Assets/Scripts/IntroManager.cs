@@ -105,6 +105,15 @@ public class IntroManager : PunBehaviour
         }
     }
 
+    void Interectable(bool interactable)
+    {
+        foreach(GameObject cell in GameObject.FindGameObjectsWithTag("GameRoomCell"))
+        {
+            cell.GetComponent<Button>().interactable = interactable;
+        }
+        createButton.interactable = interactable;
+    }
+
     public override void OnReceivedRoomListUpdate()     //방정보 변경 감지하는 함수, 무슨방 있는지도 확인가능
     {
         
@@ -123,6 +132,16 @@ public class IntroManager : PunBehaviour
             GameRoomInfo gameRoomInfo = new GameRoomInfo(room.Name, room.PlayerCount, room.MaxPlayers);
             GameRoomCell gameRoomCell = gameRoomCellObject.GetComponent<GameRoomCell>();
             gameRoomCell.SetRoomInfo(gameRoomInfo);
+
+            //셀 선택 동작
+            gameRoomCellObject.GetComponent<Button>().onClick.AddListener(
+                delegate
+                {
+                    Interectable(false);
+                    PhotonNetwork.JoinRoom(gameRoomInfo.roomName);
+                }
+                );
+
             scrollContent.GetComponent<RectTransform>().sizeDelta += new Vector2(0, 80);
         }
         
