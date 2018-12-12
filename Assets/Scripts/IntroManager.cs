@@ -9,8 +9,10 @@ public class IntroManager : PunBehaviour
 
     public Button createButton; //방 생성 버튼
     public GameObject createRoomPanelPrefab;    //방 생성 팝업
-    public GameObject createCellPrefab;    //cell 생성 팝업
     public Canvas canvas;
+
+    public GameObject gameRoomCellPrefab; //cell 생성 팝업
+    public GameObject scrollContent;    //cell 부모 오브젝트
 
     string serverVer = "0.1";//서버는 앱 아이디와 버전으로 구분되기에.
     CreateRoomPanelManager createRoomPanelManager;
@@ -105,8 +107,25 @@ public class IntroManager : PunBehaviour
 
     public override void OnReceivedRoomListUpdate()     //방정보 변경 감지하는 함수, 무슨방 있는지도 확인가능
     {
-        RoomInfo[] rooms = PhotonNetwork.GetRoomList();
-        Debug.Log(rooms);
+        
+        //RoomInfo[] rooms = PhotonNetwork.GetRoomList();
+        //Debug.Log(rooms);
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("GameRoomCell"))
+        {
+            Destroy(obj);
+        }
+        scrollContent.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+        foreach (RoomInfo room in PhotonNetwork.GetRoomList())
+        {
+            GameObject gameRoomCellObject = Instantiate(gameRoomCellPrefab);
+            gameRoomCellObject.transform.SetParent(scrollContent.transform, false);
+
+            GameRoomInfo gameRoomInfo = new GameRoomInfo(room.Name, room.PlayerCount, room.MaxPlayers);
+            GameRoomCell gameRoomCell = gameRoomCellObject.GetComponent<GameRoomCell>();
+            gameRoomCell.SetRoomInfo(gameRoomInfo);
+            scrollContent.GetComponent<RectTransform>().sizeDelta += new Vector2(0, 80);
+        }
+        
     }
 
 }
